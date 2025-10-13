@@ -1,110 +1,71 @@
 ﻿using System.Runtime.CompilerServices;
-using WorldMap.Layers.Types;
 
-namespace WorldMap.Layers.SurfaceLayer
+namespace WorldMap.Layers
 {
     public class SurfaceLayer
     {
         public const int DefaultWidth = 1000;
         public const int DefaultHeight = 1000;
 
-        private readonly Tile[,] tiles;
+        private readonly Tile[] _tiles;
 
-        public int Width => tiles.GetLength(0);
-        public int Height => tiles.GetLength(1);
+        public int Width { get; }
+        public int Height { get; }
 
-        public SurfaceLayer(int width = DefaultWidth, int height = DefaultHeight)
+        public SurfaceLayer(Span<Tile> initialTiles, int width = DefaultWidth, int height = DefaultHeight)
         {
-            tiles = new Tile[width, height];
-            FillLayerWithType(TileType.Plain);
+            if (initialTiles.IsEmpty)
+                throw new ArgumentException("Переданная коллекция тайлов пуста");
+
+            if (width * height != initialTiles.Length)
+                throw new ArgumentException($"Количество элементов в переданном массиве ({initialTiles.Length}) должно соответствовать ширине ({width}) и высоте ({height})");
+
+            _tiles = initialTiles.ToArray();
+            Width = width;
+            Height = height;
         }
 
-        public SurfaceLayer(Tile[,] initialTiles)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetTileType(int x, int y, out TileType result)
         {
-            if (initialTiles == null || initialTiles.Length == 0)
-                throw new ArgumentException("Переданный массив тайлов пуст");
-
-            var width = initialTiles.GetLength(0);
-            var height = initialTiles.GetLength(1);
-
-            tiles = new Tile[width, height];
-
-            for (var x = 0; x < width; x++)
+            if (ValidateCoordinates(x, y))
             {
-                for (var y = 0; y < height; y++)
-                {
-                    tiles[x, y] = initialTiles[x, y];
-                }
+                result = _tiles[ToIndex(x, y)].Type;
+                return true;
             }
-        }
-
-        public SurfaceLayer(IEnumerable<IEnumerable<Tile>> initialTiles)
-        {
-            var enumerator = initialTiles.GetEnumerator();
-            List<List<Tile>> rows = new List<List<Tile>>();
-
-            while (enumerator.MoveNext())
+            else
             {
-                var rowEnum = enumerator.Current.GetEnumerator();
-                List<Tile> currentRow = new List<Tile>();
-
-                while (rowEnum.MoveNext())
-                    currentRow.Add(rowEnum.Current);
-
-                rows.Add(currentRow);
-            }
-
-            tiles = new Tile[rows.Count, rows[0].Count];
-
-            for (int x = 0; x < rows.Count; x++)
-            {
-                for (int y = 0; y < rows[x].Count; y++)
-                {
-                    tiles[x, y] = rows[x][y];
-                }
-            }
-        }
-
-        public void FillLayerWithType(TileType tileType)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    SetTile(x, y, new Tile(tileType));
-                }
+                result = default;
+                return false;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public TileType GetTileType(int x, int y)
+        public bool TryGetTile(int x, int y, out Tile result)
         {
-            ValidateCoordinates(x, y);
-            return tiles[x, y].Type;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Tile GetTile(int x, int y)
-        {
-            ValidateCoordinates(x, y);
-            return tiles[x, y];
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetTile(int x, int y, Tile tile)
-        {
-            ValidateCoordinates(x, y);
-            tiles[x, y] = tile;
-        }
-
-        public void FillArea(int startX, int endX, int startY, int endY, TileType fillType)
-        {
-            for (int x = startX; x <= endX && x < Width; x++)
+            if (ValidateCoordinates(x, y))
             {
-                for (int y = startY; y <= endY && y < Height; y++)
-                {
-                    SetTile(x, y, new Tile(fillType));
-                }
+                result = _tiles[ToIndex(x, y)];
+                return true;
+            }
+            else
+            {
+                result = default;
+                return false;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TrySetTile(int x, int y, Tile tile)
+        {
+            if (ValidateCoordinates(x, y))
+            {
+                _tiles[ToIndex(x, y)] = tile;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -121,22 +82,29 @@ namespace WorldMap.Layers.SurfaceLayer
             return true;
         }
 
-        private void ValidateCoordinates(int x, int y)
+        public void FillArea(int startX, int endX, int startY, int endY, TileType fillType)
         {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-                throw new IndexOutOfRangeException("Координаты выходят за границу карты");
+            for (int x = startX; x <= endX && x < Width; x++)
+            {
+                for (int y = startY; y <= endY && y < Height; y++)
+                {
+                    TrySetTile(x, y, new Tile(fillType));
+                }
+            }
+        }
+
+        private int ToIndex(int x, int y) => y * Width + x;
+
+        private bool ValidateCoordinates(int x, int y)
+        {
+            return x >= 0 && x < Width && y >= 0 && y < Height;
         }
 
         private bool CanPlaceObjectAt(int x, int y)
         {
-            try
-            {
-                return GetTileType(x, y) == TileType.Plain;
-            }
-            catch (IndexOutOfRangeException)
-            {
-                return false;
-            }
+            if (TryGetTileType(x, y, out var tileType))
+                return tileType == TileType.Plain;
+            return false;
         }
     }
 }
