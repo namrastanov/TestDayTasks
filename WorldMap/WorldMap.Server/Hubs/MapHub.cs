@@ -1,6 +1,6 @@
 using MagicOnion.Server.Hubs;
+using WorldMap.Domain;
 using WorldMap.Layers.ObjectsLayer;
-using WorldMap.Layers.ObjectsLayer.Base;
 using WorldMap.Shared.Interfaces;
 using WorldMap.Shared.Models;
 using WorldMap.Shared.OnionContracts;
@@ -23,16 +23,16 @@ namespace WorldMap.Server.Hubs
         {
             try
             {
-                _logger.LogInformation("Client {ConnectionId} joining map hub", Context.ConnectionId);
+                _logger.LogInformation("Client {ConnectionId} joining map hub", ConnectionId);
 
                 _group = await Group.AddAsync("MapRoom");
                 _objectLayer.Subscribe(this);
 
-                _logger.LogInformation("Client {ConnectionId} joined successfully", Context.ConnectionId);
+                _logger.LogInformation("Client {ConnectionId} joined successfully", ConnectionId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error joining hub for client {ConnectionId}", Context.ConnectionId);
+                _logger.LogError(ex, "Error joining hub for client {ConnectionId}", ConnectionId);
                 throw;
             }
         }
@@ -41,7 +41,7 @@ namespace WorldMap.Server.Hubs
         {
             try
             {
-                _logger.LogInformation("Client {ConnectionId} leaving map hub", Context.ConnectionId);
+                _logger.LogInformation("Client {ConnectionId} leaving map hub", ConnectionId);
 
                 _objectLayer.Unsubscribe(this);
 
@@ -50,11 +50,11 @@ namespace WorldMap.Server.Hubs
                     await _group.RemoveAsync(Context);
                 }
 
-                _logger.LogInformation("Client {ConnectionId} left successfully", Context.ConnectionId);
+                _logger.LogInformation("Client {ConnectionId} left successfully", ConnectionId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error leaving hub for client {ConnectionId}", Context.ConnectionId);
+                _logger.LogError(ex, "Error leaving hub for client {ConnectionId}", ConnectionId);
                 throw;
             }
         }
@@ -135,8 +135,8 @@ namespace WorldMap.Server.Hubs
 
         private async Task BroadcastToGroupAsync<T>(string groupName, T message, Action<IMapHubReceiver, T> action)
         {
-            var group = await Group.AddAsync(groupName);
-            action(group.All, message);
+            var group = _group ?? await Group.AddAsync(groupName);
+            action(Broadcast(group), message);
         }
     }
 }

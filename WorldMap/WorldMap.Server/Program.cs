@@ -1,6 +1,7 @@
 using MagicOnion.Serialization;
 using MagicOnion.Serialization.MemoryPack;
 using MagicOnion.Server;
+using WorldMap.Layers;
 using WorldMap.Layers.ObjectsLayer;
 using WorldMap.Layers.RegionsLayer;
 

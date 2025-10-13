@@ -26,11 +26,11 @@ namespace WorldMap.Server.Services
             try
             {
                 _logger.LogInformation(
-                    "Getting objects in area: ({X1}, {Y1}) to ({X2}, {Y2})",
-                    request.X1, request.Y1, request.X2, request.Y2);
+                    "Getting objects in area: ({X}, {Y}) to ({Width}, {Height})",
+                    request.X, request.Y, request.Width, request.Height);
 
-                var objects = await _objectLayer.GetObjectsInAreaAsync(
-                    request.X1, request.Y1, request.X2, request.Y2);
+                var objects = await _objectLayer.GetByAreaAsync(
+                    request.X, request.Y, request.Width, request.Height);
 
                 var response = new GetObjectsInAreaResponse
                 {
@@ -60,11 +60,11 @@ namespace WorldMap.Server.Services
             try
             {
                 _logger.LogInformation(
-                    "Getting regions in area: ({X1}, {Y1}) to ({X2}, {Y2})",
-                    request.X1, request.Y1, request.X2, request.Y2);
+                    "Getting regions in area: ({X}, {Y}) to ({Width}, {Height})",
+                    request.X, request.Y, request.Width, request.Height);
 
                 var regions = await _regionLayer.GetRegionsInAreaAsync(
-                    request.X1, request.Y1, request.X2, request.Y2);
+                    request.X, request.Y, request.Width, request.Height);
 
                 var response = new GetRegionsInAreaResponse
                 {
