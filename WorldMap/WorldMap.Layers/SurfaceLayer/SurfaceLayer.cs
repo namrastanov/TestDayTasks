@@ -38,9 +38,9 @@ namespace WorldMap.Layers.SurfaceLayer
             }
         }
 
-        public SurfaceLayer(IEnumerable<IEnumerable<Tile>> collection)
+        public SurfaceLayer(IEnumerable<IEnumerable<Tile>> initialTiles)
         {
-            var enumerator = collection.GetEnumerator();
+            var enumerator = initialTiles.GetEnumerator();
             List<List<Tile>> rows = new List<List<Tile>>();
 
             while (enumerator.MoveNext())
