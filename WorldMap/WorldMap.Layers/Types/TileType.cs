@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorldMap.Layers.ObjectsLayer.Base
+namespace WorldMap.Layers.Types
 {
-    internal interface IGameObject
+    public enum TileType : byte
     {
+        Plain = 0,
+        Mountain = 1
     }
 }

@@ -6,10 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="ObjectsLayer\Building\**" />
-    <EmbeddedResource Remove="ObjectsLayer\Building\**" />
-    <None Remove="ObjectsLayer\Building\**" />
-  </ItemGroup>
-
 </Project>
