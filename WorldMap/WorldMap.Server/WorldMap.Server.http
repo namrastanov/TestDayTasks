@@ -1,0 +1,6 @@
+@WorldMap.Server_HostAddress = http://localhost:5186
+
+GET {{WorldMap.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
