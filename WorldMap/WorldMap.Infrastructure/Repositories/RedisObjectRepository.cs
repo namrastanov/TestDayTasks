@@ -74,7 +74,7 @@ namespace WorldMap.Infrastructure
             foreach (var result in results)
             {
                 var obj = await GetByIdAsync(result.Member);
-                if (obj != null && CheckIfInsideAreaAsync(obj, topLeftX, topLeftY, bottomRightX, bottomRightY))
+                if (obj != null && CheckIfInsideArea(obj, topLeftX, topLeftY, bottomRightX, bottomRightY))
                     objects.Add(obj);
             }
 
@@ -97,7 +97,7 @@ namespace WorldMap.Infrastructure
             }
         }
 
-        public bool CheckIfInsideAreaAsync(T obj, int topLeftX, int topLeftY, int width, int height)
+        public bool CheckIfInsideArea(T obj, int topLeftX, int topLeftY, int width, int height)
         {
             var bottomRightX = topLeftX + width;
             var bottomRightY = topLeftY + height;
