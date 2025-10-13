@@ -1,34 +1,44 @@
+using MagicOnion.Serialization;
+using MagicOnion.Serialization.MemoryPack;
+using MagicOnion.Server;
+using WorldMap.Layers.ObjectsLayer;
+using WorldMap.Layers.RegionsLayer;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Configure MagicOnion with MemoryPack serialization
+builder.Services.AddMagicOnion(options =>
+{
+    options.MessageSerializer = MemoryPackMagicOnionSerializerProvider.Instance;
+});
+
+// Register layer services as singletons for in-memory state
+builder.Services.AddSingleton<IObjectLayer, ObjectLayer>();
+builder.Services.AddSingleton<IRegionLayer, RegionLayer>();
+
+// Add CORS for development
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .WithExposedHeaders("Grpc-Status", "Grpc-Message", "Grpc-Encoding", "Grpc-Accept-Encoding");
+    });
+});
+
+// Add gRPC services
+builder.Services.AddGrpc();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
+app.UseRouting();
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
+app.MapMagicOnionService();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
