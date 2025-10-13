@@ -1,121 +1,141 @@
-using System.Collections.Concurrent;
-using WorldMap.Layers.ObjectsLayer.Base;
+using WorldMap.Domain;
+using WorldMap.Infrastructure.Repositories;
 
-namespace WorldMap.Layers.ObjectsLayer
+namespace WorldMap.Layers
 {
-    public class ObjectLayer : IObjectLayer
+    public delegate void ObjectEventHandler(GameObject obj);
+
+    public sealed class ObjectLayer
     {
-        private readonly ConcurrentDictionary<string, GameObject> _objects = new();
-        private readonly List<IObjectChangeHandler> _handlers = new();
-        private readonly object _handlersLock = new();
+        private readonly IRedisObjectRepository<GameObject> _objectRepository;
+        private readonly object _locker = new();
+        private event ObjectEventHandler? OnCreated;
+        private event ObjectEventHandler? OnUpdated;
+        private event ObjectEventHandler? OnDeleted;
 
-        public Task<IReadOnlyCollection<GameObject>> GetObjectsInAreaAsync(int x1, int y1, int x2, int y2)
+        public ObjectLayer(IRedisObjectRepository<GameObject> objectRepository)
         {
-            // Ensure coordinates are properly ordered
-            var minX = Math.Min(x1, x2);
-            var maxX = Math.Max(x1, x2);
-            var minY = Math.Min(y1, y2);
-            var maxY = Math.Max(y1, y2);
-
-            var objectsInArea = _objects.Values
-                .Where(obj => IsObjectInArea(obj, minX, minY, maxX, maxY))
-                .ToList();
-
-            return Task.FromResult<IReadOnlyCollection<GameObject>>(objectsInArea);
+            _objectRepository = objectRepository ?? 
+                throw new ArgumentNullException(nameof(objectRepository));
         }
 
-        public async Task AddObjectAsync(GameObject gameObject)
+        public void SubscribeToCreate(ObjectEventHandler handler)
         {
-            if (string.IsNullOrEmpty(gameObject.Id))
-            {
-                throw new ArgumentException("Object ID cannot be null or empty", nameof(gameObject));
-            }
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
 
-            if (!_objects.TryAdd(gameObject.Id, gameObject))
+            lock (_locker)
             {
-                throw new InvalidOperationException($"Object with ID {gameObject.Id} already exists");
+                OnCreated += handler;
+            }
+        }
+        public void UnsubscribeFromCreate(ObjectEventHandler handler)
+        {
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
+
+            lock (_locker)
+            {
+                OnCreated -= handler;
             }
 
             await NotifyHandlersAsync(h => h.OnObjectAddedAsync(gameObject));
         }
-
-        public async Task UpdateObjectAsync(GameObject gameObject)
+        public void SubscribeToUpdate(ObjectEventHandler handler)
         {
-            if (string.IsNullOrEmpty(gameObject.Id))
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
+
+            lock (_locker)
             {
-                throw new ArgumentException("Object ID cannot be null or empty", nameof(gameObject));
+                OnUpdated += handler;
             }
-
-            if (!_objects.ContainsKey(gameObject.Id))
-            {
-                throw new InvalidOperationException($"Object with ID {gameObject.Id} does not exist");
-            }
-
-            _objects[gameObject.Id] = gameObject;
-
-            await NotifyHandlersAsync(h => h.OnObjectUpdatedAsync(gameObject));
         }
 
-        public async Task RemoveObjectAsync(string id)
+        public void UnsubscribeFromUpdate(ObjectEventHandler handler)
         {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ArgumentException("Object ID cannot be null or empty", nameof(id));
-            }
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
 
-            if (!_objects.TryRemove(id, out _))
+            lock (_locker)
             {
-                throw new InvalidOperationException($"Object with ID {id} does not exist");
+                OnUpdated -= handler;
+            }
+        }
+
+        public void SubscribeToDelete(ObjectEventHandler handler)
+        {
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
+
+            lock (_locker)
+            {
+                OnDeleted += handler;
+            }
+        }
+
+        public void UnsubscribeFromDelete(ObjectEventHandler handler)
+        {
+            _ = handler ??
+                throw new ArgumentNullException(nameof(handler));
+
+            lock (_locker)
+            {
+                OnDeleted -= handler;
             }
 
             await NotifyHandlersAsync(h => h.OnObjectRemovedAsync(id));
         }
 
-        public Task<GameObject?> GetObjectByIdAsync(string id)
+        public async Task CreateObjectAsync(GameObject gameObject)
         {
-            _objects.TryGetValue(id, out var gameObject);
-            return Task.FromResult(gameObject);
+            await _objectRepository.AddAsync(gameObject);
+            lock (_locker)
+            {
+                OnCreated?.Invoke(gameObject);
+            }
         }
 
-        public void Subscribe(IObjectChangeHandler handler)
+        public async Task UpdateObjectAsync(GameObject gameObject)
         {
-            lock (_handlersLock)
+            await _objectRepository.RemoveAsync(gameObject.Id);
+            await _objectRepository.AddAsync(gameObject);
+            lock (_locker)
             {
-                if (!_handlers.Contains(handler))
+                OnUpdated?.Invoke(gameObject);
+            }
+        }
+
+        public async Task DeleteObjectAsync(string id)
+        {
+            var gameObject = 
+                await _objectRepository.GetByIdAsync(id);
+            if (gameObject != null)
+            {
+                await _objectRepository.RemoveAsync(id);
+                lock (_locker)
                 {
-                    _handlers.Add(handler);
+                    OnDeleted?.Invoke(gameObject);
                 }
             }
         }
 
-        public void Unsubscribe(IObjectChangeHandler handler)
+        public async Task<IEnumerable<GameObject>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height)
         {
-            lock (_handlersLock)
-            {
-                _handlers.Remove(handler);
-            }
+            var gameObjects =
+                await _objectRepository.GetByAreaAsync(topLeftX, topLeftY, width, height);
+            return gameObjects;
         }
 
-        private bool IsObjectInArea(GameObject obj, int minX, int minY, int maxX, int maxY)
+        public async Task<GameObject?> GetByCoordinatesAsync(int x, int y)
         {
-            // Check if object overlaps with the area
-            var objMaxX = obj.X + obj.Width - 1;
-            var objMaxY = obj.Y + obj.Height - 1;
-
-            return !(obj.X > maxX || objMaxX < minX || obj.Y > maxY || objMaxY < minY);
+            var gameObject = 
+                await _objectRepository.GetByCoordinatesAsync(x, y);
+            return gameObject;
         }
 
-        private async Task NotifyHandlersAsync(Func<IObjectChangeHandler, Task> action)
-        {
-            List<IObjectChangeHandler> handlersCopy;
-            lock (_handlersLock)
-            {
-                handlersCopy = new List<IObjectChangeHandler>(_handlers);
-            }
-
-            var tasks = handlersCopy.Select(action);
-            await Task.WhenAll(tasks);
-        }
+        public bool CheckIfInsideAreaAsync(GameObject gameObject, int topLeftX, int topLeftY, int width, int height) =>
+            _objectRepository.CheckIfInsideAreaAsync(gameObject, topLeftX, topLeftY, width, height);
     }
 }
 

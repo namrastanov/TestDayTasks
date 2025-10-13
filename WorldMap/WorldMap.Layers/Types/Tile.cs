@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WorldMap.Layers.Types;
-
-namespace WorldMap.Layers.Types
+﻿namespace WorldMap.Layers
 {
     public struct Tile : IEquatable<Tile>
     {

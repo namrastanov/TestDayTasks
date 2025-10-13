@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MemoryPack" Version="1.21.1" />
+    <ProjectReference Include="..\WorldMap.Infrastructure\WorldMap.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

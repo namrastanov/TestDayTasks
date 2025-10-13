@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using WorldMap.Layers.SurfaceLayer;
-using WorldMap.Layers.Types;
-using Xunit;
+﻿using WorldMap.Layers;
 
 namespace WorldMap.Tests.LayersTests
 {
-
     public class SurfaceLayerTests
     {
         [Fact]
-        public void Constructor_DefaultSize_CreatesExpectedArray()
+        public void CreateSurfaceLayer_ValidParameters_SuccessfulCreation()
         {
             // Arrange
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+
             // Act
-            var surfaceLayer = new SurfaceLayer();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
 
             // Assert
             Assert.Equal(SurfaceLayer.DefaultWidth, surfaceLayer.Width);
@@ -21,137 +19,130 @@ namespace WorldMap.Tests.LayersTests
         }
 
         [Fact]
-        public void Constructor_InitializedWithCollection_CorrectlyPopulatesTiles()
+        public void CreateSurfaceLayer_EmptyCollection_ThrowsArgumentException()
         {
             // Arrange
-            var tiles = new List<List<Tile>>
-            {
-                new List<Tile> {new Tile(TileType.Plain), new Tile(TileType.Mountain)},
-                new List<Tile> {new Tile(TileType.Mountain), new Tile(TileType.Plain)}
-            };
-
             // Act
-            var surfaceLayer = new SurfaceLayer(tiles);
-
             // Assert
-            Assert.Equal(2, surfaceLayer.Width);
-            Assert.Equal(2, surfaceLayer.Height);
-            Assert.Equal(TileType.Plain, surfaceLayer.GetTileType(0, 0));
-            Assert.Equal(TileType.Mountain, surfaceLayer.GetTileType(0, 1));
+            Assert.Throws<ArgumentException>(() =>
+            {
+                Span<Tile> emptyTiles = Array.Empty<Tile>();
+                new SurfaceLayer(initialTiles: emptyTiles);
+            });
         }
 
         [Fact]
-        public void Constructor_InitializedWithArray_CorrectlyPopulatesTiles()
+        public void CreateSurfaceLayer_IncorrectSize_ThrowsArgumentException()
         {
             // Arrange
-            var tiles = new Tile[2, 2]
-            {
-                { new Tile(TileType.Plain), new Tile(TileType.Mountain) },
-                { new Tile(TileType.Mountain), new Tile(TileType.Plain) }
-            };
+            var incorrectTilesCount = SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight - 1;
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), incorrectTilesCount).ToArray();
 
             // Act
-            var surfaceLayer = new SurfaceLayer(tiles);
-
             // Assert
-            Assert.Equal(2, surfaceLayer.Width);
-            Assert.Equal(2, surfaceLayer.Height);
-            Assert.Equal(TileType.Plain, surfaceLayer.GetTileType(0, 0));
-            Assert.Equal(TileType.Mountain, surfaceLayer.GetTileType(0, 1));
-        }
-
-        [Fact]
-        public void FillLayerWithType_ChangesAllTilesToGivenType()
-        {
-            // Arrange
-            var surfaceLayer = new SurfaceLayer();
-
-            // Act
-            surfaceLayer.FillLayerWithType(TileType.Mountain);
-
-            // Assert
-            for (var x = 0; x < surfaceLayer.Width; x++)
-            {
-                for (var y = 0; y < surfaceLayer.Height; y++)
-                {
-                    Assert.Equal(TileType.Mountain, surfaceLayer.GetTileType(x, y));
-                }
-            }
+            Assert.Throws<ArgumentException>(() => new SurfaceLayer(tiles.AsSpan()));
         }
 
         [Theory]
         [InlineData(0, 0, TileType.Plain)]
-        [InlineData(999, 999, TileType.Plain)]
-        public void GetTileType_ReturnsCorrectType(int x, int y, TileType expectedType)
+        [InlineData(1, 1, TileType.Plain)]
+        public void TryGetTile_ValidCoordinates_ReturnsCorrectTile(int x, int y, TileType expectedType)
         {
             // Arrange
-            var surfaceLayer = new SurfaceLayer();
+            var tiles = Enumerable.Repeat(new Tile(expectedType), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
 
             // Act
-            var actualType = surfaceLayer.GetTileType(x, y);
+            bool success = surfaceLayer.TryGetTile(x, y, out Tile actualTile);
 
             // Assert
-            Assert.Equal(expectedType, actualType);
+            Assert.True(success);
+            Assert.Equal(expectedType, actualTile.Type);
+        }
+
+        [Theory]
+        [InlineData(0, 0, TileType.Mountain)]
+        [InlineData(1, 1, TileType.Plain)]
+        public void TrySetTile_ValidCoordinates_SetsCorrectly(int x, int y, TileType setType)
+        {
+            // Arrange
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
+
+            // Act
+            bool success = surfaceLayer.TrySetTile(x, y, new Tile(setType));
+
+            // Assert
+            Assert.True(success);
+            Assert.True(surfaceLayer.TryGetTile(x, y, out Tile actualTile));
+            Assert.Equal(setType, actualTile.Type);
+        }
+
+        [Theory]
+        [InlineData(-1, 0)]
+        [InlineData(0, -1)]
+        [InlineData(SurfaceLayer.DefaultWidth, 0)]
+        [InlineData(0, SurfaceLayer.DefaultHeight)]
+        public void TryGetTile_OutOfBounds_ReturnsFalse(int x, int y)
+        {
+            // Arrange
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
+
+            // Act
+            bool success = surfaceLayer.TryGetTile(x, y, out _);
+
+            // Assert
+            Assert.False(success);
         }
 
         [Fact]
-        public void SetTile_SetsNewTileAtPosition()
+        public void FillArea_FillsWithSpecifiedType()
         {
             // Arrange
-            var surfaceLayer = new SurfaceLayer();
-            var testTile = new Tile(TileType.Mountain);
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
 
             // Act
-            surfaceLayer.SetTile(500, 500, testTile);
+            surfaceLayer.FillArea(0, 10, 0, 10, TileType.Mountain);
 
             // Assert
-            Assert.Equal(testTile, surfaceLayer.GetTile(500, 500));
-        }
-
-        [Fact]
-        public void FillArea_FillsSpecifiedAreaWithGivenType()
-        {
-            // Arrange
-            var surfaceLayer = new SurfaceLayer();
-
-            // Act
-            surfaceLayer.FillArea(100, 200, 100, 200, TileType.Mountain);
-
-            // Assert
-            for (var x = 100; x <= 200; x++)
+            foreach (var x in Enumerable.Range(0, 11))
             {
-                for (var y = 100; y <= 200; y++)
+                foreach (var y in Enumerable.Range(0, 11))
                 {
-                    Assert.Equal(TileType.Mountain, surfaceLayer.GetTileType(x, y));
+                    Assert.True(surfaceLayer.TryGetTileType(x, y, out var tileType));
+                    Assert.Equal(TileType.Mountain, tileType);
                 }
             }
         }
 
         [Fact]
-        public void CanPlaceObjectInArea_ReturnsFalseForMountainTiles()
+        public void CanPlaceObjectInArea_PlainTerrain_ReturnsTrue()
         {
             // Arrange
-            var surfaceLayer = new SurfaceLayer();
-            surfaceLayer.FillArea(100, 200, 100, 200, TileType.Mountain);
+            var tiles = Enumerable.Repeat(new Tile(TileType.Plain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
 
             // Act
-            var canPlace = surfaceLayer.CanPlaceObjectInArea(100, 200, 100, 200);
+            bool canPlace = surfaceLayer.CanPlaceObjectInArea(0, 10, 0, 10);
 
             // Assert
-            Assert.False(canPlace);
+            Assert.True(canPlace);
         }
 
         [Fact]
-        public void OutOfBounds_ThrowsIndexOutOfRangeException()
+        public void CanPlaceObjectInArea_Mountains_ReturnsFalse()
         {
             // Arrange
-            var surfaceLayer = new SurfaceLayer();
+            var tiles = Enumerable.Repeat(new Tile(TileType.Mountain), SurfaceLayer.DefaultWidth * SurfaceLayer.DefaultHeight).ToArray();
+            var surfaceLayer = new SurfaceLayer(tiles.AsSpan());
 
-            // Act & Assert
-            Assert.Throws<IndexOutOfRangeException>(() => surfaceLayer.GetTile(-1, 0));
-            Assert.Throws<IndexOutOfRangeException>(() => surfaceLayer.GetTile(0, -1));
-            Assert.Throws<IndexOutOfRangeException>(() => surfaceLayer.GetTile(surfaceLayer.Width + 1, 0));
-            Assert.Throws<IndexOutOfRangeException>(() => surfaceLayer.GetTile(0, surfaceLayer.Height + 1));
+            // Act
+            bool canPlace = surfaceLayer.CanPlaceObjectInArea(0, 10, 0, 10);
+
+            // Assert
+            Assert.False(canPlace);
         }
     }
 }
