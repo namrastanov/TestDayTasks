@@ -1,11 +1,11 @@
 ﻿using WorldMap.Domain;
 
-namespace WorldMap.Infrastructure.Repositories
+namespace WorldMap.Infrastructure
 {
     public interface IRedisObjectRepository<T> where T : BaseObject, new()
     {
         Task AddAsync(T obj);
-        bool CheckIfInsideAreaAsync(T obj, int topLeftX, int topLeftY, int width, int height);
+        bool CheckIfInsideArea(T obj, int topLeftX, int topLeftY, int width, int height);
         Task<IEnumerable<T>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height);
         Task<T?> GetByCoordinatesAsync(int x, int y);
         Task<T?> GetByIdAsync(string id);

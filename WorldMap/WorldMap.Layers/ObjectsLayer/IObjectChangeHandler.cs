@@ -1,4 +1,4 @@
-using WorldMap.Layers.ObjectsLayer.Base;
+using WorldMap.Domain;
 
 namespace WorldMap.Layers.ObjectsLayer
 {

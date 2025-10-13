@@ -1,18 +1,42 @@
-using WorldMap.Layers.ObjectsLayer.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using WorldMap.Domain;
 
 namespace WorldMap.Layers.ObjectsLayer
 {
     public interface IObjectLayer
     {
         /// <summary>
-        /// Gets all objects within the specified area
+        /// Gets an object at the specified coordinates
         /// </summary>
-        /// <param name="x1">Start X coordinate</param>
-        /// <param name="y1">Start Y coordinate</param>
-        /// <param name="x2">End X coordinate</param>
-        /// <param name="y2">End Y coordinate</param>
-        /// <returns>Collection of game objects in the area</returns>
-        Task<IReadOnlyCollection<GameObject>> GetObjectsInAreaAsync(int x1, int y1, int x2, int y2);
+        /// <param name="x">The x-coordinate</param>
+        /// <param name="y">The y-coordinate</param>
+        /// <returns>The game object at the coordinates or null if not found</returns>
+        Task<GameObject?> GetByCoordinatesAsync(int x, int y);
+
+        /// <summary>
+        /// Checks if a game object is inside a specified rectangular area
+        /// </summary>
+        /// <param name="gameObject">The game object to check</param>
+        /// <param name="topLeftX">The x-coordinate of the top-left corner of the area</param>
+        /// <param name="topLeftY">The y-coordinate of the top-left corner of the area</param>
+        /// <param name="width">The width of the area</param>
+        /// <param name="height">The height of the area</param>
+        /// <returns>True if the object is inside the area, false otherwise</returns>
+        bool CheckIfInsideArea(GameObject gameObject, int topLeftX, int topLeftY, int width, int height);
+
+        /// <summary>
+        /// Gets all objects within a specified rectangular area
+        /// </summary>
+        /// <param name="topLeftX">The x-coordinate of the top-left corner of the area</param>
+        /// <param name="topLeftY">The y-coordinate of the top-left corner of the area</param>
+        /// <param name="width">The width of the area</param>
+        /// <param name="height">The height of the area</param>
+        /// <returns>A collection of game objects within the specified area</returns>
+        Task<IEnumerable<GameObject>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height);
 
         /// <summary>
         /// Adds a new object to the layer

@@ -1,7 +1,7 @@
 ﻿using StackExchange.Redis;
 using WorldMap.Domain;
 
-namespace WorldMap.Infrastructure.Repositories
+namespace WorldMap.Infrastructure
 {
     public class RedisObjectRepository<T> : IRedisObjectRepository<T> where T : BaseObject, new()
     {
@@ -74,7 +74,7 @@ namespace WorldMap.Infrastructure.Repositories
             foreach (var result in results)
             {
                 var obj = await GetByIdAsync(result.Member);
-                if (obj != null && CheckIfInsideAreaAsync(obj, topLeftX, topLeftY, bottomRightX, bottomRightY))
+                if (obj != null && CheckIfInsideArea(obj, topLeftX, topLeftY, bottomRightX, bottomRightY))
                     objects.Add(obj);
             }
 
@@ -97,7 +97,7 @@ namespace WorldMap.Infrastructure.Repositories
             }
         }
 
-        public bool CheckIfInsideAreaAsync(T obj, int topLeftX, int topLeftY, int width, int height)
+        public bool CheckIfInsideArea(T obj, int topLeftX, int topLeftY, int width, int height)
         {
             var bottomRightX = topLeftX + width;
             var bottomRightY = topLeftY + height;
