@@ -1,5 +1,5 @@
 ﻿using WorldMap.Domain;
-using WorldMap.Infrastructure.Repositories;
+using WorldMap.Infrastructure;
 
 namespace WorldMap.Layers
 {

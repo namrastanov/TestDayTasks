@@ -1,7 +1,7 @@
 ﻿using StackExchange.Redis;
 using WorldMap.Domain;
 
-namespace WorldMap.Infrastructure.Repositories
+namespace WorldMap.Infrastructure
 {
     public class RedisObjectRepository<T> : IRedisObjectRepository<T> where T : BaseObject, new()
     {

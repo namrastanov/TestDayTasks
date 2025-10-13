@@ -1,6 +1,6 @@
 ﻿using WorldMap.Domain;
 
-namespace WorldMap.Infrastructure.Repositories
+namespace WorldMap.Infrastructure
 {
     public interface IRedisObjectRepository<T> where T : BaseObject, new()
     {
