@@ -83,22 +83,22 @@ namespace WorldMap.Layers
             }
         }
 
-        public async Task CreateObjectAsync(GameObject obj)
+        public async Task CreateObjectAsync(GameObject gameObject)
         {
-            await _objectRepository.AddAsync(obj);
+            await _objectRepository.AddAsync(gameObject);
             lock (_locker)
             {
-                OnCreated?.Invoke(obj);
+                OnCreated?.Invoke(gameObject);
             }
         }
 
-        public async Task UpdateObjectAsync(GameObject updatedObj)
+        public async Task UpdateObjectAsync(GameObject gameObject)
         {
-            await _objectRepository.RemoveAsync(updatedObj.Id);
-            await _objectRepository.AddAsync(updatedObj);
+            await _objectRepository.RemoveAsync(gameObject.Id);
+            await _objectRepository.AddAsync(gameObject);
             lock (_locker)
             {
-                OnUpdated?.Invoke(updatedObj);
+                OnUpdated?.Invoke(gameObject);
             }
         }
 
