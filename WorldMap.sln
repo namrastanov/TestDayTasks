@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Layers", "WorldMap.Layers\WorldMap.Layers.csproj", "{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {34D4AC5A-4EA8-4BD7-AFD1-9B95B0E6BCE8}
+	EndGlobalSection
+EndGlobal
