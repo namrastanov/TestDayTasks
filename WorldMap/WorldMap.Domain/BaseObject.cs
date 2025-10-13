@@ -1,8 +1,13 @@
-﻿namespace WorldMap.Layers.ObjectsLayer.Base
-{
+﻿namespace WorldMap.Domain
+{ 
     public abstract class BaseObject
     {
-        public string Id { get; init; }
+        public BaseObject()
+        {
+            
+        }
+
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }

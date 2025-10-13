@@ -1,4 +1,4 @@
-﻿namespace WorldMap.Layers.ObjectsLayer.Base
+﻿namespace WorldMap.Domain
 {
     public class GameObject : BaseObject
     {
