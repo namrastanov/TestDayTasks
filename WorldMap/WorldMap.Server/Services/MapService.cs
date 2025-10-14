@@ -11,10 +11,10 @@ namespace WorldMap.Server.Services
     public class MapService : ServiceBase<IMapService>, IMapService
     {
         private readonly IObjectLayer _objectLayer;
-        private readonly IRegionLayer _regionLayer;
+        private readonly IRegionsLayer _regionLayer;
         private readonly ILogger<MapService> _logger;
 
-        public MapService(IObjectLayer objectLayer, IRegionLayer regionLayer, ILogger<MapService> logger)
+        public MapService(IObjectLayer objectLayer, IRegionsLayer regionLayer, ILogger<MapService> logger)
         {
             _objectLayer = objectLayer ?? throw new ArgumentNullException(nameof(objectLayer));
             _regionLayer = regionLayer ?? throw new ArgumentNullException(nameof(regionLayer));
@@ -63,7 +63,7 @@ namespace WorldMap.Server.Services
                     "Getting regions in area: ({X}, {Y}) to ({Width}, {Height})",
                     request.X, request.Y, request.Width, request.Height);
 
-                var regions = await _regionLayer.GetRegionsInAreaAsync(
+                var regions = await _regionLayer.GetRegionsIntersectingAreaAsync(
                     request.X, request.Y, request.Width, request.Height);
 
                 var response = new GetRegionsInAreaResponse

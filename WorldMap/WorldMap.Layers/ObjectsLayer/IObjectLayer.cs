@@ -57,13 +57,6 @@ namespace WorldMap.Layers.ObjectsLayer
         Task RemoveObjectAsync(string id);
 
         /// <summary>
-        /// Gets an object by its ID
-        /// </summary>
-        /// <param name="id">The ID of the object</param>
-        /// <returns>The game object or null if not found</returns>
-        Task<GameObject?> GetObjectByIdAsync(string id);
-
-        /// <summary>
         /// Subscribes to object change events
         /// </summary>
         /// <param name="handler">The event handler for object changes</param>
