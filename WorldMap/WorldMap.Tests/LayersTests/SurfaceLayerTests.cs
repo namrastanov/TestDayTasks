@@ -1,7 +1,7 @@
 ﻿using WorldMap.Application;
 using WorldMap.Domain;
 
-namespace WorldMap.Tests.LayersTests
+namespace WorldMap.Tests
 {
     public class SurfaceLayerTests
     {

@@ -7,15 +7,15 @@ namespace WorldMap.Infrastructure
     public class RedisObjectRepository<T> : IObjectRepository<T> where T : BaseObject, new()
     {
         private const string ObjectLocationKey = "object_locations";
-        private readonly ConnectionMultiplexer _redis;
+        private readonly IRedisConnection _redisConnection;
         private readonly IDatabase _db;
 
-        public RedisObjectRepository(ConnectionMultiplexer redis)
+        public RedisObjectRepository(IRedisConnection redisConnection)
         {
-            _redis = redis ??
-                throw new ArgumentNullException(nameof(redis));
+            _redisConnection = redisConnection ??
+                throw new ArgumentNullException(nameof(redisConnection));
 
-            _db = _redis.GetDatabase();
+            _db = _redisConnection.GetDatabase();
         }
 
         public async Task AddAsync(T obj)
@@ -89,7 +89,7 @@ namespace WorldMap.Infrastructure
 
             if (nearbyResults.Length > 0)
             {
-                var firstResult = nearbyResults.FirstOrDefault(); // Берём ближайший объект
+                var firstResult = nearbyResults.FirstOrDefault();
                 return await GetByIdAsync(firstResult.Member);
             }
             else
