@@ -24,7 +24,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     options.AbortOnConnectFail = false; // allow app to start if Redis is temporarily unavailable
     return ConnectionMultiplexer.Connect(options);
 });
-builder.Services.AddSingleton<IRedisConnection, RedisConnection>();
 builder.Services.AddSingleton<IObjectRepository<GameObject>, RedisObjectRepository<GameObject>>();
 builder.Services.AddSingleton<IObjectLayer, ObjectLayer>();
 
