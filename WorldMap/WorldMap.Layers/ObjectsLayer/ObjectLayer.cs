@@ -1,136 +1,87 @@
-﻿using WorldMap.Domain;
+﻿using System.Collections.Immutable;
+using WorldMap.Domain;
 using WorldMap.Infrastructure;
+using WorldMap.Layers.ObjectsLayer;
 
 namespace WorldMap.Layers
 {
     public delegate void ObjectEventHandler(GameObject obj);
 
-    public sealed class ObjectLayer
+    public sealed class ObjectLayer: IObjectLayer
     {
         private readonly IRedisObjectRepository<GameObject> _objectRepository;
-        private readonly object _locker = new();
-        private event ObjectEventHandler? OnCreated;
-        private event ObjectEventHandler? OnUpdated;
-        private event ObjectEventHandler? OnDeleted;
+        private ImmutableList<IObjectChangeHandler> _handlers = ImmutableList<IObjectChangeHandler>.Empty;
 
         public ObjectLayer(IRedisObjectRepository<GameObject> objectRepository)
         {
-            _objectRepository = objectRepository ?? 
-                throw new ArgumentNullException(nameof(objectRepository));
+            _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
         }
 
-        public void SubscribeToCreate(ObjectEventHandler handler)
+        public void Subscribe(IObjectChangeHandler handler)
         {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnCreated += handler;
-            }
+            ImmutableInterlocked.Update(
+                ref _handlers,
+                list => list.Contains(handler) ? list : list.Add(handler)
+            );
         }
-        public void UnsubscribeFromCreate(ObjectEventHandler handler)
+
+        public void Unsubscribe(IObjectChangeHandler handler)
         {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnCreated -= handler;
-            }
-        }
-        public void SubscribeToUpdate(ObjectEventHandler handler)
-        {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnUpdated += handler;
-            }
+            ImmutableInterlocked.Update(
+                ref _handlers,
+                list => list.Remove(handler)
+            );
         }
 
-        public void UnsubscribeFromUpdate(ObjectEventHandler handler)
-        {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnUpdated -= handler;
-            }
-        }
-
-        public void SubscribeToDelete(ObjectEventHandler handler)
-        {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnDeleted += handler;
-            }
-        }
-
-        public void UnsubscribeFromDelete(ObjectEventHandler handler)
-        {
-            _ = handler ??
-                throw new ArgumentNullException(nameof(handler));
-
-            lock (_locker)
-            {
-                OnDeleted -= handler;
-            }
-        }
-
-        public async Task CreateObjectAsync(GameObject gameObject)
+        public async Task AddObjectAsync(GameObject gameObject)
         {
             await _objectRepository.AddAsync(gameObject);
-            lock (_locker)
-            {
-                OnCreated?.Invoke(gameObject);
-            }
+
+            await NotifyHandlersAsync(h => h.OnObjectAddedAsync(gameObject));
         }
 
         public async Task UpdateObjectAsync(GameObject gameObject)
         {
             await _objectRepository.RemoveAsync(gameObject.Id);
             await _objectRepository.AddAsync(gameObject);
-            lock (_locker)
-            {
-                OnUpdated?.Invoke(gameObject);
-            }
+
+            await NotifyHandlersAsync(h => h.OnObjectUpdatedAsync(gameObject));
         }
 
-        public async Task DeleteObjectAsync(string id)
+        public async Task RemoveObjectAsync(string id)
         {
-            var gameObject = 
-                await _objectRepository.GetByIdAsync(id);
+            var gameObject = await _objectRepository.GetByIdAsync(id);
+
             if (gameObject != null)
             {
                 await _objectRepository.RemoveAsync(id);
-                lock (_locker)
-                {
-                    OnDeleted?.Invoke(gameObject);
-                }
+
+                await NotifyHandlersAsync(h => h.OnObjectRemovedAsync(id));
             }
         }
 
         public async Task<IEnumerable<GameObject>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height)
         {
-            var gameObjects =
-                await _objectRepository.GetByAreaAsync(topLeftX, topLeftY, width, height);
+            var gameObjects = await _objectRepository.GetByAreaAsync(topLeftX, topLeftY, width, height);
+
             return gameObjects;
         }
 
         public async Task<GameObject?> GetByCoordinatesAsync(int x, int y)
         {
-            var gameObject = 
-                await _objectRepository.GetByCoordinatesAsync(x, y);
+            var gameObject = await _objectRepository.GetByCoordinatesAsync(x, y);
+
             return gameObject;
         }
 
-        public bool CheckIfInsideAreaAsync(GameObject gameObject, int topLeftX, int topLeftY, int width, int height) =>
-            _objectRepository.CheckIfInsideAreaAsync(gameObject, topLeftX, topLeftY, width, height);
+        public bool CheckIfInsideArea(GameObject gameObject, int topLeftX, int topLeftY, int width, int height) =>
+            _objectRepository.CheckIfInsideArea(gameObject, topLeftX, topLeftY, width, height);
+
+        private async Task NotifyHandlersAsync(Func<IObjectChangeHandler, Task> action)
+        {
+            var handlers = _handlers;
+            var tasks = handlers.Select(action);
+            await Task.WhenAll(tasks);
+        }
     }
 }
