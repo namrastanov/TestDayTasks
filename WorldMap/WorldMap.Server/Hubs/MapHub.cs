@@ -11,7 +11,7 @@ namespace WorldMap.Server.Hubs
     {
         private readonly IObjectLayer _objectLayer;
         private readonly ILogger<MapHub> _logger;
-        private IGroup? _group;
+        private IGroup<IMapHubReceiver>? _group;
 
         public MapHub(IObjectLayer objectLayer, ILogger<MapHub> logger)
         {
@@ -139,7 +139,7 @@ namespace WorldMap.Server.Hubs
         private async Task BroadcastToGroupAsync<T>(string groupName, T message, Action<IMapHubReceiver, T> action)
         {
             var group = _group ?? await Group.AddAsync(groupName);
-            action(Broadcast(group), message);
+            action(group.All, message);
         }
     }
 }
