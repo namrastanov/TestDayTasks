@@ -41,11 +41,11 @@ namespace WorldMap.Infrastructure
             var hashData = await _db.HashGetAllAsync($"obj:{id}", CommandFlags.None);
             return new T
             {
-                Id = GetStringFromHash(hashData, "Id"),
-                X = GetIntFromHash(hashData, "X"),
-                Y = GetIntFromHash(hashData, "Y"),
-                Width = GetIntFromHash(hashData, "Width"),
-                Height = GetIntFromHash(hashData, "Height")
+                Id = hashData[0].Value,
+                X = Convert.ToInt32(hashData[1].Value),
+                Y = Convert.ToInt32(hashData[2].Value),
+                Width = Convert.ToInt32(hashData[3].Value),
+                Height = Convert.ToInt32(hashData[4].Value)
             };
         }
 
@@ -112,12 +112,6 @@ namespace WorldMap.Infrastructure
                 obj.Y + obj.Height <= topLeftY
             );
         }
-
-        private string GetStringFromHash(HashEntry[] data, string key) =>
-            data.FirstOrDefault(x => x.Name == key).Value.ToString();
-
-        private int GetIntFromHash(HashEntry[] data, string key) =>
-            Convert.ToInt32(data.FirstOrDefault(x => x.Name == key).Value);
     }
 
     public static class CoordinateConverter

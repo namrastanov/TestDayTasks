@@ -45,8 +45,8 @@ namespace WorldMap.Infrastructure.Tests
             // Arrange
             var gameObject = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 30, Height = 40 };
 
-            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
-            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).Returns(Task.FromResult(true));
+            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
                   .Returns(Task.FromResult(new HashEntry[]
                   {
                   new("id", gameObject.Id),
