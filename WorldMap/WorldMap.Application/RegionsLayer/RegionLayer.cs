@@ -52,7 +52,7 @@ namespace WorldMap.Application
 
             foreach (var region in _regions)
             {
-                if (region.Id == regionId && region.Area.Contains(x, y))
+                if (region.Id == regionId && region.Contains(x, y))
                     return true;
             }
 
@@ -99,9 +99,9 @@ namespace WorldMap.Application
         {
             foreach (var region in _regions)
             {
-                for (var x = region.Area.Left; x < region.Area.Right; x++)
+                for (var x = region.Left; x < region.Right; x++)
                 {
-                    for (var y = region.Area.Top; y < region.Area.Bottom; y++)
+                    for (var y = region.Top; y < region.Bottom; y++)
                     {
                         if (!ValidateCoordinates(x, y)) continue;
 

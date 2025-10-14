@@ -108,8 +108,8 @@ namespace WorldMap.Application.Tests
         {
             return new[]
             {
-                new Region(1, "Test Region", new Rectangle(0, 0, 10, 10)) { Metadata = "Test Region Metadata" },
-                new Region(2, "Another Test Region", new Rectangle(5, 5, 5, 5)) { Metadata = "Another Test Region Metadata" }
+                new Region(1, "Test Region", 0, 0, 10, 10) { Metadata = "Test Region Metadata" },
+                new Region(2, "Another Test Region", 5, 5, 5, 5) { Metadata = "Another Test Region Metadata" }
             };
         }
     }

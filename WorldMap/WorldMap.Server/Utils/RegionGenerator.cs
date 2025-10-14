@@ -32,7 +32,7 @@ namespace WorldMap.Server.Utils
                     var x = col * cellWidth;
                     var width = (col == columns - 1) ? mapOptions.Width - x : cellWidth;
 
-                    regions[index++] = new Region(id++, $"Region {id - 1}", new Rectangle(x, y, width, height))
+                    regions[index++] = new Region(id++, $"Region {id - 1}", x, y, width, height)
                     {
                         Metadata = "Generated"
                     };

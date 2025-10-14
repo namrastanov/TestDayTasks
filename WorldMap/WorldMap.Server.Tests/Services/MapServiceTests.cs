@@ -87,8 +87,8 @@ namespace WorldMap.Server.Tests.Services
             var request = new GetRegionsInAreaRequest { X = 0, Y = 0, Width = 100, Height = 100 };
             var regions = new List<Region>
             {
-                new Region(1, "Forest", new Rectangle(10, 10, 50, 50)) { Metadata = "trees" },
-                new Region(2, "Desert", new Rectangle(60, 60, 30, 30)) { Metadata = "sand" }
+                new Region(1, "Forest", 10, 10, 50, 50) { Metadata = "trees" },
+                new Region(2, "Desert", 60, 60, 30, 30) { Metadata = "sand" }
             };
             _mockRegionLayer.Setup(x => x.GetRegionsIntersectingArea(0, 0, 100, 100))
                 .Returns(regions);
