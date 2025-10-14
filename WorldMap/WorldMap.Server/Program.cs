@@ -2,7 +2,6 @@ using MagicOnion.Serialization;
 using MagicOnion.Serialization.MemoryPack;
 using StackExchange.Redis;
 using WorldMap.Domain;
-using WorldMap.Layers;
 using WorldMap.Application;
 using WorldMap.Infrastructure;
 

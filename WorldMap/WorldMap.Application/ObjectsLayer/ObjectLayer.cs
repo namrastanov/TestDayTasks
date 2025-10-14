@@ -1,8 +1,7 @@
 ﻿using System.Collections.Immutable;
 using WorldMap.Domain;
-using WorldMap.Application;
 
-namespace WorldMap.Layers
+namespace WorldMap.Application
 {
     public delegate void ObjectEventHandler(GameObject obj);
 
