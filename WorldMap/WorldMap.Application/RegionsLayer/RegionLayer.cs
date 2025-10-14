@@ -4,8 +4,8 @@ namespace WorldMap.Application
 {
     public class RegionLayer : IRegionsLayer
     {
-        private Region[] _regions;
-        private ushort[] _regionIds;
+        private readonly Region[] _regions;
+        private readonly ushort[] _regionIds;
 
         public int Width { get; }
         public int Height { get; }
