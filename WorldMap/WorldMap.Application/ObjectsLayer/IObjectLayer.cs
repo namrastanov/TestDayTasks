@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WorldMap.Domain;
 
-namespace WorldMap.Layers.ObjectsLayer
+namespace WorldMap.Application
 {
     public interface IObjectLayer
     {

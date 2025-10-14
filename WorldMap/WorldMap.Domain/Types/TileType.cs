@@ -1,4 +1,4 @@
-﻿namespace WorldMap.Layers
+﻿namespace WorldMap.Domain
 {
     public enum TileType : byte
     {

@@ -1,8 +1,8 @@
-﻿using WorldMap.Domain;
+﻿using WorldMap.Core.Shared;
 
-namespace WorldMap.Infrastructure
+namespace WorldMap.Application
 {
-    public interface IRedisObjectRepository<T> where T : BaseObject, new()
+    public interface IObjectRepository<T> where T : BaseObject, new()
     {
         Task AddAsync(T obj);
         bool CheckIfInsideArea(T obj, int topLeftX, int topLeftY, int width, int height);

@@ -1,9 +1,10 @@
 ﻿using StackExchange.Redis;
-using WorldMap.Domain;
+using WorldMap.Core.Shared;
+using WorldMap.Application;
 
 namespace WorldMap.Infrastructure
 {
-    public class RedisObjectRepository<T> : IRedisObjectRepository<T> where T : BaseObject, new()
+    public class RedisObjectRepository<T> : IObjectRepository<T> where T : BaseObject, new()
     {
         private const string ObjectLocationKey = "object_locations";
         private readonly ConnectionMultiplexer _redis;

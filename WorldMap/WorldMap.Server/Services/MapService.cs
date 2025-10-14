@@ -1,7 +1,6 @@
 using MagicOnion;
 using MagicOnion.Server;
-using WorldMap.Layers.ObjectsLayer;
-using WorldMap.Layers.RegionsLayer;
+using WorldMap.Application;
 using WorldMap.Shared.Interfaces;
 using WorldMap.Shared.Models;
 using WorldMap.Shared.OnionContracts;

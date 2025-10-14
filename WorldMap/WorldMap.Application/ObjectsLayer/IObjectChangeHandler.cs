@@ -1,6 +1,6 @@
 using WorldMap.Domain;
 
-namespace WorldMap.Layers.ObjectsLayer
+namespace WorldMap.Application
 {
     public interface IObjectChangeHandler
     {

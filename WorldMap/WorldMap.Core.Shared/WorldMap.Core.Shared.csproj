@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\WorldMap.Core.Shared\WorldMap.Core.Shared.csproj" />
-  </ItemGroup>
-
 </Project>

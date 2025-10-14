@@ -1,4 +1,5 @@
-﻿using WorldMap.Layers;
+﻿using WorldMap.Application;
+using WorldMap.Domain;
 
 namespace WorldMap.Tests.LayersTests
 {

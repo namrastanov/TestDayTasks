@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using WorldMap.Domain;
 
-namespace WorldMap.Layers
+namespace WorldMap.Application
 {
     public class SurfaceLayer
     {

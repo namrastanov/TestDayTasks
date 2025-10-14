@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WorldMap.Layers\WorldMap.Layers.csproj" />
+    <ProjectReference Include="..\WorldMap.Application\WorldMap.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

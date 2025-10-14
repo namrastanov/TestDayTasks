@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using WorldMap.Domain;
-using WorldMap.Infrastructure;
-using WorldMap.Layers.ObjectsLayer;
+using WorldMap.Application;
 
 namespace WorldMap.Layers
 {
@@ -9,10 +8,10 @@ namespace WorldMap.Layers
 
     public sealed class ObjectLayer: IObjectLayer
     {
-        private readonly IRedisObjectRepository<GameObject> _objectRepository;
+        private readonly IObjectRepository<GameObject> _objectRepository;
         private ImmutableList<IObjectChangeHandler> _handlers = ImmutableList<IObjectChangeHandler>.Empty;
 
-        public ObjectLayer(IRedisObjectRepository<GameObject> objectRepository)
+        public ObjectLayer(IObjectRepository<GameObject> objectRepository)
         {
             _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
         }

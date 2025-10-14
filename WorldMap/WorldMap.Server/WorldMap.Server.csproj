@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WorldMap.Layers\WorldMap.Layers.csproj" />
+    <ProjectReference Include="..\WorldMap.Application\WorldMap.Application.csproj" />
     <ProjectReference Include="..\WorldMap.Infrastructure\WorldMap.Infrastructure.csproj" />
     <ProjectReference Include="..\WorldMap.Domain\WorldMap.Domain.csproj" />
     <ProjectReference Include="..\WorldMap.Shared\WorldMap.Shared.csproj" />

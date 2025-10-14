@@ -3,8 +3,7 @@ using MagicOnion.Serialization.MemoryPack;
 using StackExchange.Redis;
 using WorldMap.Domain;
 using WorldMap.Layers;
-using WorldMap.Layers.ObjectsLayer;
-using WorldMap.Layers.RegionsLayer;
+using WorldMap.Application;
 using WorldMap.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +17,7 @@ builder.Services.AddMagicOnion(options =>
 // Register layer services as singletons for in-memory state
 var redisConnectionString = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
 builder.Services.AddSingleton(sp => ConnectionMultiplexer.Connect(redisConnectionString));
-builder.Services.AddSingleton<IRedisObjectRepository<GameObject>, RedisObjectRepository<GameObject>>();
+builder.Services.AddSingleton<IObjectRepository<GameObject>, RedisObjectRepository<GameObject>>();
 builder.Services.AddSingleton<IObjectLayer, ObjectLayer>();
 builder.Services.AddSingleton<IRegionsLayer, RegionLayer>();
 

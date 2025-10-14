@@ -1,6 +1,6 @@
 ﻿using WorldMap.Domain;
 
-namespace WorldMap.Layers.RegionsLayer
+namespace WorldMap.Application
 {
     public interface IRegionsLayer
     {

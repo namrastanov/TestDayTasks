@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using WorldMap.Domain;
-using WorldMap.Layers.ObjectsLayer;
-using WorldMap.Layers.RegionsLayer;
+using WorldMap.Application;
 using WorldMap.Server.Services;
 using WorldMap.Shared.OnionContracts;
 

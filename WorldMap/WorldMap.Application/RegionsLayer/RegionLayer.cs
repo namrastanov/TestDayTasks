@@ -1,7 +1,6 @@
-using System.Collections.Concurrent;
 using WorldMap.Domain;
 
-namespace WorldMap.Layers.RegionsLayer
+namespace WorldMap.Application
 {
     public class RegionLayer : IRegionsLayer
     {
