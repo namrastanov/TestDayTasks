@@ -14,6 +14,10 @@ namespace WorldMap.Domain
             Id = id;
             Name = name;
             Area = area;
+            X = area.X;
+            Y = area.Y;
+            Width = area.Width;
+            Height = area.Height;
         }
     }
 }
