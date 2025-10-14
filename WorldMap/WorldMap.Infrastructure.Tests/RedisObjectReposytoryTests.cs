@@ -45,8 +45,8 @@ namespace WorldMap.Infrastructure.Tests
             // Arrange
             var gameObject = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 30, Height = 40 };
 
-            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
-            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>())).Returns(Task.FromResult(true));
+            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
                   .Returns(Task.FromResult(new HashEntry[]
                   {
                   new("id", gameObject.Id),
@@ -83,6 +83,45 @@ namespace WorldMap.Infrastructure.Tests
         }
 
         [Fact]
+        public async Task Test_GetByAreaAsync_ReturnsCorrectObjects()
+        {
+            // Arrange
+            var topLeftX = 0;
+            var topLeftY = 0;
+            var width = 100;
+            var height = 100;
+            var gameObject1 = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 10, Height = 10 };
+            var gameObject2 = new GameObject { Id = Guid.NewGuid().ToString(), X = 50, Y = 60, Width = 10, Height = 10 };
+            _mockDb.Setup(db => db.GeoRadiusAsync(It.IsAny<RedisKey>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<double>(), It.IsAny<GeoUnit>(), It.IsAny<int>(), It.IsAny<Order>(), It.IsAny<GeoRadiusOptions>(), It.IsAny<CommandFlags>()))
+                   .Returns(Task.FromResult(new[] { new GeoRadiusResult(1, 1, 1, new GeoPosition()), new GeoRadiusResult(2, 2, 2, new GeoPosition()) }));
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
+            _mockDb.SetupSequence(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+                  .Returns(Task.FromResult(new HashEntry[]
+                  {
+                  new("id", gameObject1.Id),
+                  new("x", gameObject1.X.ToString()),
+                  new("y", gameObject1.Y.ToString()),
+                  new("width", gameObject1.Width.ToString()),
+                  new("height", gameObject1.Height.ToString())
+                  }))
+                  .Returns(Task.FromResult(new HashEntry[]
+                  {
+                  new("id", gameObject2.Id),
+                  new("x", gameObject2.X.ToString()),
+                  new("y", gameObject2.Y.ToString()),
+                  new("width", gameObject2.Width.ToString()),
+                  new("height", gameObject2.Height.ToString())
+                  }));
+
+            // Act
+            var objects = await _repository.GetByAreaAsync(topLeftX, topLeftY, width, height);
+
+            // Assert
+            Assert.Contains(gameObject1.Id, objects.Select(o => o.Id));
+            Assert.Contains(gameObject2.Id, objects.Select(o => o.Id));
+        }
+
+        [Fact]
         public void Test_CheckIfInsideArea_ReturnsFalseForOutOfBoundsObject()
         {
             // Arrange
@@ -93,6 +132,32 @@ namespace WorldMap.Infrastructure.Tests
 
             // Assert
             Assert.False(result);
+        }
+
+        [Fact]
+        public async Task Test_GetByCoordinatesAsync_ReturnsClosestObject()
+        {
+            // Arrange
+            var gameObject = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 10, Height = 10 };
+            _mockDb.Setup(db => db.GeoRadiusAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<double>(), It.IsAny<GeoUnit>(), It.IsAny<int>(), It.IsAny<Order?>(), It.IsAny<GeoRadiusOptions>(), It.IsAny<CommandFlags>()))
+                    .Returns(Task.FromResult(new[] { new GeoRadiusResult(1, 1, 1, new GeoPosition()) }));
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
+            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+                    .Returns(Task.FromResult(new HashEntry[]
+                    {
+                new("id", gameObject.Id),
+                new("x", gameObject.X.ToString()),
+                new("y", gameObject.Y.ToString()),
+                new("width", gameObject.Width.ToString()),
+                new("height", gameObject.Height.ToString())
+                    }));
+
+            // Act
+            var retrievedObject = await _repository.GetByCoordinatesAsync(10, 20);
+
+            // Assert
+            Assert.NotNull(retrievedObject);
+            Assert.Equal(gameObject.Id, retrievedObject!.Id);
         }
     }
 }

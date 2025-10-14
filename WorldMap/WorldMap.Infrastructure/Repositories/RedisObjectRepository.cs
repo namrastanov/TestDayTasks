@@ -68,10 +68,11 @@ namespace WorldMap.Infrastructure
                 centerLatLng.Longitude,
                 centerLatLng.Latitude,
                 radiusMeters,
-                unit: GeoUnit.Meters,
-                order: Order.Ascending,
-                options: GeoRadiusOptions.Default,
-                flags: CommandFlags.None);
+                GeoUnit.Meters,
+                -1,
+                Order.Ascending,
+                GeoRadiusOptions.Default,
+                CommandFlags.None);
 
             var objects = new List<T>();
             foreach (var result in results)
@@ -87,7 +88,7 @@ namespace WorldMap.Infrastructure
         public async Task<T?> GetByCoordinatesAsync(int x, int y)
         {
             var geoCoordinates = CoordinateConverter.ToGeoCoordinates(x, y);
-            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, 1, unit: GeoUnit.Meters, options: GeoRadiusOptions.Default, flags: CommandFlags.None);
+            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, GeoUnit.Meters, 1, null, GeoRadiusOptions.Default, CommandFlags.None);
 
             if (nearbyResults.Length > 0)
             {
