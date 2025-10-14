@@ -1,4 +1,4 @@
-﻿using WorldMap.Domain;
+using WorldMap.Domain;
 
 namespace WorldMap.Layers.ObjectsLayer
 {
@@ -23,3 +23,4 @@ namespace WorldMap.Layers.ObjectsLayer
         Task OnObjectRemovedAsync(string id);
     }
 }
+
