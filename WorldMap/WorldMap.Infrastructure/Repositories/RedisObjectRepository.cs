@@ -7,10 +7,10 @@ namespace WorldMap.Infrastructure
     public class RedisObjectRepository<T> : IObjectRepository<T> where T : BaseObject<string>, new()
     {
         private const string ObjectLocationKey = "object_locations";
-        private readonly IRedisConnection _redisConnection;
+        private readonly IConnectionMultiplexer _redisConnection;
         private readonly IDatabase _db;
 
-        public RedisObjectRepository(IRedisConnection redisConnection)
+        public RedisObjectRepository(IConnectionMultiplexer redisConnection)
         {
             _redisConnection = redisConnection ??
                 throw new ArgumentNullException(nameof(redisConnection));

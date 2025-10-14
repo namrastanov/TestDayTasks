@@ -16,7 +16,7 @@ namespace WorldMap.Infrastructure.Tests
             _mockDb = new Mock<IDatabase>();
 
             _mockConnection.Setup(c => c.GetDatabase(-1, null)).Returns(_mockDb.Object);
-            _repository = new RedisObjectRepository<GameObject>(new RedisConnection(_mockConnection.Object));
+            _repository = new RedisObjectRepository<GameObject>(_mockConnection.Object);
         }
 
         [Fact]
