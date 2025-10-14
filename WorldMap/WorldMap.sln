@@ -5,7 +5,7 @@ VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Application", "WorldMap.Application\WorldMap.Application.csproj", "{2AD22B5F-2DC0-4A23-A2AC-818D0F68197D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Tests", "WorldMap.Tests\WorldMap.Tests.csproj", "{F0032244-BA23-4AB9-B850-8A5516FF54F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Application.Tests", "WorldMap.Application.Tests\WorldMap.Application.Tests.csproj", "{F0032244-BA23-4AB9-B850-8A5516FF54F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Infrastructure", "WorldMap.Infrastructure\WorldMap.Infrastructure.csproj", "{662F8D7F-0DF4-47D9-8AC2-683E125AE48A}"
 EndProject

@@ -96,10 +96,8 @@ namespace WorldMap.Application
 
         private int ToIndex(int x, int y) => y * Width + x;
 
-        private bool ValidateCoordinates(int x, int y)
-        {
-            return x >= 0 && x < Width && y >= 0 && y < Height;
-        }
+        private bool ValidateCoordinates(int x, int y) =>
+            x >= 0 && x < Width && y >= 0 && y < Height;
 
         private bool CanPlaceObjectAt(int x, int y)
         {

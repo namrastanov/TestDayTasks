@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using WorldMap.Domain;
+using System.Drawing;
+using System.Xml.Linq;
 using WorldMap.Application;
+using WorldMap.Domain;
 using WorldMap.Server.Services;
 using WorldMap.Shared.OnionContracts;
 
@@ -67,8 +69,8 @@ namespace WorldMap.Server.Tests.Services
         {
             // Arrange
             var request = new GetRegionsInAreaRequest { X = 0, Y = 0, Width = 10, Height = 10 };
-            _mockRegionLayer.Setup(x => x.GetRegionsIntersectingAreaAsync(0, 0, 10, 10))
-                .ReturnsAsync(new List<Region>());
+            _mockRegionLayer.Setup(x => x.GetRegionsIntersectingArea(0, 0, 10, 10))
+                .Returns(new List<Region>());
 
             // Act
             var response = await _service.GetRegionsInAreaAsync(request);
@@ -85,11 +87,11 @@ namespace WorldMap.Server.Tests.Services
             var request = new GetRegionsInAreaRequest { X = 0, Y = 0, Width = 100, Height = 100 };
             var regions = new List<Region>
             {
-                new Region { Id = "region1", Name = "Forest", X = 10, Y = 10, Width = 50, Height = 50, Metadata = "trees" },
-                new Region { Id = "region2", Name = "Desert", X = 60, Y = 60, Width = 30, Height = 30, Metadata = "sand" }
+                new Region(1, "Forest", new Rectangle(10, 10, 50, 50)) { Metadata = "trees" },
+                new Region(2, "Desert", new Rectangle(60, 60, 30, 30)) { Metadata = "sand" }
             };
-            _mockRegionLayer.Setup(x => x.GetRegionsIntersectingAreaAsync(0, 0, 100, 100))
-                .ReturnsAsync(regions);
+            _mockRegionLayer.Setup(x => x.GetRegionsIntersectingArea(0, 0, 100, 100))
+                .Returns(regions);
 
             // Act
             var response = await _service.GetRegionsInAreaAsync(request);
@@ -97,9 +99,9 @@ namespace WorldMap.Server.Tests.Services
             // Assert
             Assert.NotNull(response);
             Assert.Equal(2, response.Regions.Count);
-            Assert.Equal("region1", response.Regions[0].Id);
+            Assert.Equal(1, response.Regions[0].Id);
             Assert.Equal("Forest", response.Regions[0].Name);
-            Assert.Equal("region2", response.Regions[1].Id);
+            Assert.Equal(2, response.Regions[1].Id);
             Assert.Equal("Desert", response.Regions[1].Name);
         }
 

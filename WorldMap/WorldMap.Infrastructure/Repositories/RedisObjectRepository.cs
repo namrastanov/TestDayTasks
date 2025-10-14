@@ -4,7 +4,7 @@ using WorldMap.Application;
 
 namespace WorldMap.Infrastructure
 {
-    public class RedisObjectRepository<T> : IObjectRepository<T> where T : BaseObject, new()
+    public class RedisObjectRepository<T> : IObjectRepository<T> where T : BaseObject<string>, new()
     {
         private const string ObjectLocationKey = "object_locations";
         private readonly IRedisConnection _redisConnection;

@@ -2,7 +2,7 @@
 
 namespace WorldMap.Application
 {
-    public interface IObjectRepository<T> where T : BaseObject, new()
+    public interface IObjectRepository<T> where T : BaseObject<string>, new()
     {
         Task AddAsync(T obj);
         bool CheckIfInsideArea(T obj, int topLeftX, int topLeftY, int width, int height);

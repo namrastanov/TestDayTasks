@@ -1,8 +1,7 @@
 ﻿using Moq;
-using WorldMap.Application;
 using WorldMap.Domain;
 
-namespace WorldMap.Tests
+namespace WorldMap.Application.Tests
 {
     public class ObjectLayerTests
     {

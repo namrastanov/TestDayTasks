@@ -62,7 +62,7 @@ namespace WorldMap.Server.Services
                     "Getting regions in area: ({X}, {Y}) to ({Width}, {Height})",
                     request.X, request.Y, request.Width, request.Height);
 
-                var regions = await _regionLayer.GetRegionsIntersectingAreaAsync(
+                var regions = _regionLayer.GetRegionsIntersectingArea(
                     request.X, request.Y, request.Width, request.Height);
 
                 var response = new GetRegionsInAreaResponse

@@ -1,13 +1,12 @@
 ﻿namespace WorldMap.Core.Shared
 { 
-    public abstract class BaseObject
+    public abstract class BaseObject<T>
     {
         public BaseObject()
         {
-             Id = Guid.NewGuid().ToString();
         }
 
-        public string Id { get; init; }
+        public T Id { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }

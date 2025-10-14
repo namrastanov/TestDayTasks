@@ -20,7 +20,7 @@ namespace WorldMap.Infrastructure.Tests
         }
 
         [Fact]
-        public async Task Test_CheckIfInsideArea_ReturnsFalseForOutOfBoundsObject()
+        public void Test_CheckIfInsideArea_ReturnsFalseForOutOfBoundsObject()
         {
             // Arrange
             var gameObject = new GameObject { X = 100, Y = 100, Width = 10, Height = 10 };
