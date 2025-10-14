@@ -13,7 +13,7 @@ namespace WorldMap.Application
         public RegionLayer(Span<Region> initialRegions, int width, int height)
         {
             if (initialRegions.IsEmpty)
-                throw new ArgumentException("Переданная коллекция регионов пуста");
+                throw new ArgumentException("РџРµСЂРµРґР°РЅРЅР°СЏ РєРѕР»Р»РµРєС†РёСЏ СЂРµРіРёРѕРЅРѕРІ РїСѓСЃС‚Р°");
 
             _regions = initialRegions.ToArray();
             _regionIds = new ushort[width * height];

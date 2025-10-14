@@ -30,15 +30,15 @@ namespace WorldMap.Infrastructure
             new("y", obj.Y),
             new("width", obj.Width),
             new("height", obj.Height)
-            ]);
+            ], CommandFlags.None);
         }
 
         public async Task<T?> GetByIdAsync(string id)
         {
-            if (!await _db.KeyExistsAsync($"obj:{id}"))
+            if (!await _db.KeyExistsAsync($"obj:{id}", CommandFlags.None))
                 return null;
 
-            var hashData = await _db.HashGetAllAsync($"obj:{id}");
+            var hashData = await _db.HashGetAllAsync($"obj:{id}", CommandFlags.None);
             return new T
             {
                 Id = hashData[0].Value,
@@ -51,8 +51,8 @@ namespace WorldMap.Infrastructure
 
         public async Task RemoveAsync(string id)
         {
-            await _db.KeyDeleteAsync($"obj:{id}");
-            await _db.GeoRemoveAsync(ObjectLocationKey, id);
+            await _db.KeyDeleteAsync($"obj:{id}", CommandFlags.None);
+            await _db.GeoRemoveAsync(ObjectLocationKey, id, CommandFlags.None);
         }
 
         public async Task<IEnumerable<T>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height)
@@ -69,7 +69,9 @@ namespace WorldMap.Infrastructure
                 centerLatLng.Latitude,
                 radiusMeters,
                 unit: GeoUnit.Meters,
-                order: Order.Ascending);
+                order: Order.Ascending,
+                options: GeoRadiusOptions.Default,
+                flags: CommandFlags.None);
 
             var objects = new List<T>();
             foreach (var result in results)
@@ -85,7 +87,7 @@ namespace WorldMap.Infrastructure
         public async Task<T?> GetByCoordinatesAsync(int x, int y)
         {
             var geoCoordinates = CoordinateConverter.ToGeoCoordinates(x, y);
-            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, 1, unit: GeoUnit.Meters);
+            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, 1, unit: GeoUnit.Meters, options: GeoRadiusOptions.Default, flags: CommandFlags.None);
 
             if (nearbyResults.Length > 0)
             {

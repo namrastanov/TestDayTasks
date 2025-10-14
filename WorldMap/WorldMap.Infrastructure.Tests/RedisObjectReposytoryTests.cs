@@ -20,6 +20,69 @@ namespace WorldMap.Infrastructure.Tests
         }
 
         [Fact]
+        public async Task Test_AddAsync_Succeeds()
+        {
+            // Arrange
+            var gameObject = new GameObject { X = 10, Y = 20, Width = 30, Height = 40 };
+
+            // Act
+            await _repository.AddAsync(gameObject);
+
+            // Assert
+            _mockDb.Verify(
+                db => db.GeoAddAsync(
+                    It.Is<RedisKey>(key => key.ToString().Equals("object_locations")),
+                    It.IsAny<GeoEntry[]>(),
+                    CommandFlags.None),
+                Times.Once());
+
+            _mockDb.Verify(db => db.HashSetAsync(It.IsAny<RedisKey>(), It.IsAny<HashEntry[]>(), CommandFlags.None));
+        }
+
+        [Fact]
+        public async Task Test_GetByIdAsync_ReturnsCorrectGameObject()
+        {
+            // Arrange
+            var gameObject = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 30, Height = 40 };
+
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
+            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+                  .Returns(Task.FromResult(new HashEntry[]
+                  {
+                  new("id", gameObject.Id),
+                  new("x", gameObject.X.ToString()),
+                  new("y", gameObject.Y.ToString()),
+                  new("width", gameObject.Width.ToString()),
+                  new("height", gameObject.Height.ToString())
+                  }));
+
+            // Act
+            var retrievedObject = await _repository.GetByIdAsync(gameObject.Id);
+
+            // Assert
+            Assert.Equal(gameObject.Id, retrievedObject?.Id);
+            Assert.Equal(gameObject.X, retrievedObject?.X);
+            Assert.Equal(gameObject.Y, retrievedObject?.Y);
+            Assert.Equal(gameObject.Width, retrievedObject?.Width);
+            Assert.Equal(gameObject.Height, retrievedObject?.Height);
+        }
+
+        [Fact]
+        public async Task Test_RemoveAsync_DeletesFromDB()
+        {
+            // Arrange
+            var gameObject = new GameObject { Id = Guid.NewGuid().ToString() };
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
+
+            // Act
+            await _repository.RemoveAsync(gameObject.Id);
+
+            // Assert
+            _mockDb.Verify(db => db.KeyDeleteAsync(It.IsAny<RedisKey>(), CommandFlags.None));
+            _mockDb.Verify(db => db.GeoRemoveAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), CommandFlags.None));
+        }
+
+        [Fact]
         public void Test_CheckIfInsideArea_ReturnsFalseForOutOfBoundsObject()
         {
             // Arrange
