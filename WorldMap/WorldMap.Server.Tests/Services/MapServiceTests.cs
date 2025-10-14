@@ -65,7 +65,7 @@ namespace WorldMap.Server.Tests.Services
         }
 
         [Fact]
-        public async Task GetRegionsInAreaAsync_ReturnsEmptyList_WhenNoRegionsInArea()
+        public async Task GetRegionsInArea_ReturnsEmptyList_WhenNoRegionsInArea()
         {
             // Arrange
             var request = new GetRegionsInAreaRequest { X = 0, Y = 0, Width = 10, Height = 10 };
@@ -81,7 +81,7 @@ namespace WorldMap.Server.Tests.Services
         }
 
         [Fact]
-        public async Task GetRegionsInAreaAsync_ReturnsRegions_WhenRegionsExistInArea()
+        public async Task GetRegionsInArea_ReturnsRegions_WhenRegionsExistInArea()
         {
             // Arrange
             var request = new GetRegionsInAreaRequest { X = 0, Y = 0, Width = 100, Height = 100 };

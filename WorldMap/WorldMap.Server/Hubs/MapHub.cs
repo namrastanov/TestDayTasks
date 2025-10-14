@@ -26,6 +26,7 @@ namespace WorldMap.Server.Hubs
                 _logger.LogInformation("Client {ConnectionId} joining map hub", ConnectionId);
 
                 _group = await Group.AddAsync("MapRoom");
+                await _objectLayer.AddObjectAsync(new GameObject(ConnectionId, 0, 0, 10, 10));
                 _objectLayer.Subscribe(this);
 
                 _logger.LogInformation("Client {ConnectionId} joined successfully", ConnectionId);
@@ -44,6 +45,8 @@ namespace WorldMap.Server.Hubs
                 _logger.LogInformation("Client {ConnectionId} leaving map hub", ConnectionId);
 
                 _objectLayer.Unsubscribe(this);
+
+                await _objectLayer.RemoveObjectAsync(ConnectionId);
 
                 if (_group != null)
                 {

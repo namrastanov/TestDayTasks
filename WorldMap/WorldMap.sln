@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Core.Shared", "Wor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Infrastructure.Tests", "WorldMap.Infrastructure.Tests\WorldMap.Infrastructure.Tests.csproj", "{F524FF2C-C3A3-4C97-A4C9-B3C64F96D1B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldMap.Client", "WorldMap.Client\WorldMap.Client.csproj", "{BFFA13D8-0684-4029-A65C-A63018AA6378}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{F524FF2C-C3A3-4C97-A4C9-B3C64F96D1B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F524FF2C-C3A3-4C97-A4C9-B3C64F96D1B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F524FF2C-C3A3-4C97-A4C9-B3C64F96D1B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFFA13D8-0684-4029-A65C-A63018AA6378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFA13D8-0684-4029-A65C-A63018AA6378}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFA13D8-0684-4029-A65C-A63018AA6378}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFA13D8-0684-4029-A65C-A63018AA6378}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

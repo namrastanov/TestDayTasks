@@ -81,6 +81,7 @@ namespace WorldMap.Server.Services
 
                 _logger.LogInformation("Found {Count} regions in area", response.Regions.Count);
 
+                await Task.CompletedTask;
                 return response;
             }
             catch (Exception ex)
