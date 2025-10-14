@@ -41,11 +41,11 @@ namespace WorldMap.Infrastructure
             var hashData = await _db.HashGetAllAsync($"obj:{id}", CommandFlags.None);
             return new T
             {
-                Id = hashData[0].Value,
-                X = Convert.ToInt32(hashData[1].Value),
-                Y = Convert.ToInt32(hashData[2].Value),
-                Width = Convert.ToInt32(hashData[3].Value),
-                Height = Convert.ToInt32(hashData[4].Value)
+                Id = GetStringFromHash(hashData, "Id"),
+                X = GetIntFromHash(hashData, "X"),
+                Y = GetIntFromHash(hashData, "Y"),
+                Width = GetIntFromHash(hashData, "Width"),
+                Height = GetIntFromHash(hashData, "Height")
             };
         }
 
@@ -68,10 +68,11 @@ namespace WorldMap.Infrastructure
                 centerLatLng.Longitude,
                 centerLatLng.Latitude,
                 radiusMeters,
-                unit: GeoUnit.Meters,
-                order: Order.Ascending,
-                options: GeoRadiusOptions.Default,
-                flags: CommandFlags.None);
+                GeoUnit.Meters,
+                -1,
+                Order.Ascending,
+                GeoRadiusOptions.Default,
+                CommandFlags.None);
 
             var objects = new List<T>();
             foreach (var result in results)
@@ -87,7 +88,7 @@ namespace WorldMap.Infrastructure
         public async Task<T?> GetByCoordinatesAsync(int x, int y)
         {
             var geoCoordinates = CoordinateConverter.ToGeoCoordinates(x, y);
-            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, 1, unit: GeoUnit.Meters, options: GeoRadiusOptions.Default, flags: CommandFlags.None);
+            var nearbyResults = await _db.GeoRadiusAsync(ObjectLocationKey, geoCoordinates.Longitude, geoCoordinates.Latitude, GeoUnit.Meters, 1, null, GeoRadiusOptions.Default, CommandFlags.None);
 
             if (nearbyResults.Length > 0)
             {
@@ -111,6 +112,12 @@ namespace WorldMap.Infrastructure
                 obj.Y + obj.Height <= topLeftY
             );
         }
+
+        private string GetStringFromHash(HashEntry[] data, string key) =>
+            data.FirstOrDefault(x => x.Name == key).Value.ToString();
+
+        private int GetIntFromHash(HashEntry[] data, string key) =>
+            Convert.ToInt32(data.FirstOrDefault(x => x.Name == key).Value);
     }
 
     public static class CoordinateConverter

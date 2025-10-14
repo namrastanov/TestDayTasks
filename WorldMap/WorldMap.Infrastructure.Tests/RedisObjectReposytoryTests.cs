@@ -94,5 +94,31 @@ namespace WorldMap.Infrastructure.Tests
             // Assert
             Assert.False(result);
         }
+
+        [Fact]
+        public async Task Test_GetByCoordinatesAsync_ReturnsClosestObject()
+        {
+            // Arrange
+            var gameObject = new GameObject { Id = Guid.NewGuid().ToString(), X = 10, Y = 20, Width = 10, Height = 10 };
+            _mockDb.Setup(db => db.GeoRadiusAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<double>(), It.IsAny<GeoUnit>(), It.IsAny<int>(), It.IsAny<Order?>(), It.IsAny<GeoRadiusOptions>(), It.IsAny<CommandFlags>()))
+                    .Returns(Task.FromResult(new[] { new GeoRadiusResult(1, 1, 1, new GeoPosition()) }));
+            _mockDb.Setup(db => db.KeyExistsAsync(It.IsAny<RedisKey>(), CommandFlags.None)).Returns(Task.FromResult(true));
+            _mockDb.Setup(db => db.HashGetAllAsync(It.IsAny<RedisKey>(), CommandFlags.None))
+                    .Returns(Task.FromResult(new HashEntry[]
+                    {
+                new("id", gameObject.Id),
+                new("x", gameObject.X.ToString()),
+                new("y", gameObject.Y.ToString()),
+                new("width", gameObject.Width.ToString()),
+                new("height", gameObject.Height.ToString())
+                    }));
+
+            // Act
+            var retrievedObject = await _repository.GetByCoordinatesAsync(10, 20);
+
+            // Assert
+            Assert.NotNull(retrievedObject);
+            Assert.Equal(gameObject.Id, retrievedObject!.Id);
+        }
     }
 }
