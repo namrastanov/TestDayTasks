@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using WorldMap.Domain;
 
 namespace WorldMap.Application
@@ -8,27 +9,21 @@ namespace WorldMap.Application
     public sealed class ObjectLayer: IObjectLayer
     {
         private readonly IObjectRepository<GameObject> _objectRepository;
-        private ImmutableList<IObjectChangeHandler> _handlers = ImmutableList<IObjectChangeHandler>.Empty;
+        private readonly ConcurrentDictionary<string, IObjectChangeHandler> _handlers = new();
 
         public ObjectLayer(IObjectRepository<GameObject> objectRepository)
         {
             _objectRepository = objectRepository ?? throw new ArgumentNullException(nameof(objectRepository));
         }
 
-        public void Subscribe(IObjectChangeHandler handler)
+        public void Subscribe(string observerId, IObjectChangeHandler handler)
         {
-            ImmutableInterlocked.Update(
-                ref _handlers,
-                list => list.Contains(handler) ? list : list.Add(handler)
-            );
+            _handlers.TryAdd(observerId, handler);
         }
 
-        public void Unsubscribe(IObjectChangeHandler handler)
+        public void Unsubscribe(string observerId)
         {
-            ImmutableInterlocked.Update(
-                ref _handlers,
-                list => list.Remove(handler)
-            );
+            _handlers.TryRemove(observerId, out _);
         }
 
         public async Task AddObjectAsync(GameObject gameObject)
@@ -58,6 +53,14 @@ namespace WorldMap.Application
             }
         }
 
+        public async Task SendPrivateMessageAsync(string targetId, string message)
+        {
+            if (_handlers.TryGetValue(targetId, out var handler))
+            {
+                await handler.OnPrivateMessageAsync(message);
+            }
+        }
+
         public async Task<IEnumerable<GameObject>> GetByAreaAsync(int topLeftX, int topLeftY, int width, int height)
         {
             var gameObjects = await _objectRepository.GetByAreaAsync(topLeftX, topLeftY, width, height);
@@ -77,7 +80,7 @@ namespace WorldMap.Application
 
         private async Task NotifyHandlersAsync(Func<IObjectChangeHandler, Task> action)
         {
-            var handlers = _handlers;
+            var handlers = _handlers.Values;
             var tasks = handlers.Select(action);
             await Task.WhenAll(tasks);
         }

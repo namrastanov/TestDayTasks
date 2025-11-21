@@ -27,7 +27,7 @@ namespace WorldMap.Server.Hubs
 
                 _group = await Group.AddAsync("MapRoom");
                 await _objectLayer.AddObjectAsync(new GameObject { Id = ConnectionId.ToString(), X = 0, Y = 0, Width = 10, Height = 10 });
-                _objectLayer.Subscribe(this);
+                _objectLayer.Subscribe(ConnectionId.ToString(), this);
 
                 _logger.LogInformation("Client {ConnectionId} joined successfully", ConnectionId);
             }
@@ -44,7 +44,7 @@ namespace WorldMap.Server.Hubs
             {
                 _logger.LogInformation("Client {ConnectionId} leaving map hub", ConnectionId);
 
-                _objectLayer.Unsubscribe(this);
+                _objectLayer.Unsubscribe(ConnectionId.ToString());
 
                 await _objectLayer.RemoveObjectAsync(ConnectionId.ToString());
 
@@ -130,9 +130,25 @@ namespace WorldMap.Server.Hubs
             }
         }
 
+        public async Task OnPrivateMessageAsync(string message)
+        {
+            try
+            {
+                if (_group != null)
+                {
+                    Broadcast(_group).ToClient(Context).OnPrivateMessage(message);
+                    _logger.LogInformation("Sent private message to client {ConnectionId}", ConnectionId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending private message to client {ConnectionId}", ConnectionId);
+            }
+        }
+
         protected override ValueTask OnDisconnected()
         {
-            _objectLayer.Unsubscribe(this);
+            _objectLayer.Unsubscribe(ConnectionId.ToString());
             return base.OnDisconnected();
         }
 

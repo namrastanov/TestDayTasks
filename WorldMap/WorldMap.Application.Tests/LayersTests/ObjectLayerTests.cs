@@ -93,7 +93,7 @@ namespace WorldMap.Application.Tests
         {
             // Arrange
             var handlerMock = new Mock<IObjectChangeHandler>();
-            _objectLayer.Subscribe(handlerMock.Object);
+            _objectLayer.Subscribe("test-observer", handlerMock.Object);
             var gameObject = new GameObject { X = 10, Y = 10 };
 
             // Act
@@ -108,8 +108,8 @@ namespace WorldMap.Application.Tests
         {
             // Arrange
             var handlerMock = new Mock<IObjectChangeHandler>();
-            _objectLayer.Subscribe(handlerMock.Object);
-            _objectLayer.Unsubscribe(handlerMock.Object);
+            _objectLayer.Subscribe("test-observer", handlerMock.Object);
+            _objectLayer.Unsubscribe("test-observer");
             var gameObject = new GameObject { X = 10, Y = 10 };
 
             // Act
@@ -117,6 +117,22 @@ namespace WorldMap.Application.Tests
 
             // Assert
             handlerMock.Verify(h => h.OnObjectAddedAsync(It.IsAny<GameObject>()), Times.Never());
+        }
+
+        [Fact]
+        public async Task SendPrivateMessageAsync_ShouldNotifyTargetHandler()
+        {
+            // Arrange
+            var handlerMock = new Mock<IObjectChangeHandler>();
+            var targetId = "target-observer";
+            _objectLayer.Subscribe(targetId, handlerMock.Object);
+            var message = "Hello, World!";
+
+            // Act
+            await _objectLayer.SendPrivateMessageAsync(targetId, message);
+
+            // Assert
+            handlerMock.Verify(h => h.OnPrivateMessageAsync(message), Times.Once());
         }
     }
 }

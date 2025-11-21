@@ -7,6 +7,7 @@ namespace WorldMap.Shared.Interfaces
         void OnObjectAdded(ObjectAddedEvent evt);
         void OnObjectUpdated(ObjectUpdatedEvent evt);
         void OnObjectDeleted(ObjectDeletedEvent evt);
+        void OnPrivateMessage(string message);
     }
 }
 

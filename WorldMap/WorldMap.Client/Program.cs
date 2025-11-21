@@ -162,5 +162,10 @@ public class ConsoleMapHubReceiver : IMapHubReceiver
     {
         Console.WriteLine($"[EVENT] Object Updated: {evt.Object.Id} @ ({evt.Object.X},{evt.Object.Y}) {evt.Object.Width}x{evt.Object.Height}");
     }
+
+    public void OnPrivateMessage(string message)
+    {
+        Console.WriteLine($"[EVENT] Private Message: {message}");
+    }
 }
 

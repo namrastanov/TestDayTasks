@@ -54,14 +54,22 @@ namespace WorldMap.Application
         /// <summary>
         /// Subscribes to object change events
         /// </summary>
+        /// <param name="observerId">The unique ID of the observer</param>
         /// <param name="handler">The event handler for object changes</param>
-        void Subscribe(IObjectChangeHandler handler);
+        void Subscribe(string observerId, IObjectChangeHandler handler);
 
         /// <summary>
         /// Unsubscribes from object change events
         /// </summary>
-        /// <param name="handler">The event handler to unsubscribe</param>
-        void Unsubscribe(IObjectChangeHandler handler);
+        /// <param name="observerId">The unique ID of the observer to unsubscribe</param>
+        void Unsubscribe(string observerId);
+
+        /// <summary>
+        /// Sends a private message to a specific observer
+        /// </summary>
+        /// <param name="targetId">The ID of the target observer</param>
+        /// <param name="message">The message content</param>
+        Task SendPrivateMessageAsync(string targetId, string message);
     }
 }
 

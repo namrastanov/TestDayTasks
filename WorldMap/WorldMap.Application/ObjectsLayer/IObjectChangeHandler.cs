@@ -21,6 +21,12 @@ namespace WorldMap.Application
         /// </summary>
         /// <param name="id">The ID of the removed object</param>
         Task OnObjectRemovedAsync(string id);
+
+        /// <summary>
+        /// Called when a private message is sent to the handler
+        /// </summary>
+        /// <param name="message">The message content</param>
+        Task OnPrivateMessageAsync(string message);
     }
 }
 
